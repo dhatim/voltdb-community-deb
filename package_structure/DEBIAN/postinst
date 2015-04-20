@@ -1,0 +1,17 @@
+#!/bin/sh -e
+
+if [ "$1" = "configure" ]
+then
+  # create voltdb group and user
+  if ! getent group "voltdb" > /dev/null 2>&1 ; then
+    addgroup --system "voltdb" --quiet
+  fi
+  if ! id voltdb > /dev/null 2>&1 ; then
+    adduser --system --home /usr/share/voltdb --no-create-home --ingroup "voltdb" --disabled-password --shell /bin/false "voltdb"
+  fi
+  
+  # assign installed files
+  chown -Rh root:voltdb /etc/voltdb/*
+  chown -Rh voltdb:voltdb /var/lib/voltdb /usr/share/voltdb /usr/lib/voltdb
+  chown -Rh voltdb:adm /var/log/voltdb  
+fi

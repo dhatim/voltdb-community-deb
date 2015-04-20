@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="voltdb-deb-build" default="build-package" basedir=".">
+
+  <property name="package.dir" location="${basedir}/package"/>
+  <property name="dist.dir" location="${basedir}/dist"/>
+  
+  <target name="clean">  
+	<delete dir="${dist.dir}" quiet="true"/>
+  </target>
+  
+  <target name="build-package" depends="clean" description="build the debian package">
+    <!-- copy package structure -->
+	<copy todir="${package.dir}">
+	  <fileset dir="${basedir}/package_structure" />
+	</copy>
+	
+	<!-- copy voltdb binaries in the package structure -->
+	<copy todir="${package.dir}/usr/share/voltdb">
+	  <fileset dir="${voltdb.dir}/obj/release/dist" />
+	</copy>
+	<!-- put librairies in /usr/lib/voltdb -->
+	<move todir="${package.dir}/usr/lib/voltdb">
+	  <fileset dir="${package.dir}/usr/share/voltdb/lib" />
+	  <fileset dir="${package.dir}/usr/share/voltdb/voltdb" includes="lib*, voltdb*.jar" />
+	</move>
+	<!--  /usr/lib/voltdb/log4j.xml is the default log4j configuration when LOG4J_CONFIG_PATH is not set -->
+	<copy todir="${package.dir}/usr/lib/voltdb" file="${package.dir}/usr/share/voltdb/voltdb/log4j.xml"/>
+	
+	<!-- add scripts to path -->
+	<symlink link="${package.dir}/usr/bin/voltdb" resource="../share/voltdb/bin/voltdb"/>
+	<symlink link="${package.dir}/usr/bin/voltadmin" resource="../share/voltdb/bin/voltadmin"/>
+	<symlink link="${package.dir}/usr/bin/sqlcmd" resource="../share/voltdb/bin/sqlcmd"/>
+	<symlink link="${package.dir}/usr/bin/jdbcloader" resource="../share/voltdb/bin/jdbcloader"/>
+	<symlink link="${package.dir}/usr/bin/csvloader" resource="../share/voltdb/bin/csvloader"/>
+	<symlink link="${package.dir}/usr/bin/kafkaloader" resource="../share/voltdb/bin/kafkaloader"/>
+	<symlink link="${package.dir}/usr/bin/voltcompiler" resource="../share/voltdb/bin/voltcompiler"/>
+	
+	<!-- set the package version and size in the control file -->
+	<loadfile property="version" srcFile="${voltdb.dir}/version.txt">
+	  <filterchain>
+	    <deletecharacters chars="\n"/>
+	  </filterchain>
+	</loadfile>
+    <exec executable="bash" outputproperty="installed.size">
+      <arg value="-c" />
+      <arg line="'du -k --max-depth=0 ${package.dir} | cut -f1'"/>
+    </exec>
+
+	<replace file="${package.dir}/DEBIAN/control">
+	  <replacefilter token="$(VERSION)" value="${version}"/>
+	  <replacefilter token="$(INSTALLED-SIZE)" value="${installed.size}"/>
+	</replace>
+	
+	<!-- the directories must have permissions 755 -->
+    <chmod file="${package.dir}/**" perm="755" type="dir"/>
+  
+    <!-- make scripts executables -->
+    <chmod dir="${package.dir}/DEBIAN" perm="755" includes="postinst postrm prerm" />
+    <chmod dir="${package.dir}/usr/share/voltdb/bin" perm="755" includes="*" />
+    <chmod file="${package.dir}/usr/share/voltdb/start_service.sh" perm="755" />
+	<chmod file="${package.dir}/etc/init.d/voltdb" perm="755" />
+
+    <!-- build the package -->
+	<mkdir dir="${dist.dir}"/>
+    <exec executable="dpkg-deb" failonerror="true">
+      <arg value="--build" />
+	  <arg value="${package.dir}" />
+	  <arg value="${dist.dir}" />
+    </exec>
+	
+	<!-- delete the temporary folder -->
+	<delete dir="${package.dir}"/>
+	
+  </target>
+  
+
+	
+</project>

@@ -1,0 +1,18 @@
+#!/bin/sh
+
+if [ "$1" = "remove" ]
+then
+  # stop voltdb
+  service voltdb stop
+  
+  # delete user files
+  rm -rf /var/lib/voltdb/jar/*
+  rm -rf /var/lib/voltdb/sql/*  
+  
+  # remove files created during voldb execution
+  rm -rf /var/lib/voltdb/voltdbroot/*
+  rm -rf /var/log/voltdb/*
+  rm -rf /usr/lib/voltdb/python/voltcli/*.pyc
+  rm -rf /usr/share/voltdb/.voltdb_server
+  rm -f /usr/lib/voltdb/python/voltdbclient.pyc
+fi

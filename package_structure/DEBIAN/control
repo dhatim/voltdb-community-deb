@@ -1,0 +1,9 @@
+Package: voltdb-community
+Priority: extra
+Section: database
+Installed-Size: $(INSTALLED-SIZE)
+Maintainer: Maxime Suret <msuret@dhatim.net>
+Architecture: amd64
+Version: $(VERSION)
+Depends: openjdk-7-jdk,libc6
+Description: Debian Package for VoltDB Community Edition.

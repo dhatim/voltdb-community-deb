@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!-- this deployment configuration is used when VoltDB is started as a service -->
+<deployment>
+   <cluster hostcount="1" />
+   <httpd enabled="true">
+      <jsonapi enabled="true" />
+   </httpd>
+   <paths>
+      <voltdbroot path="/var/lib/voltdb/voltdbroot" />
+   </paths>
+</deployment>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<!-- this log4J configuration is used when VoltDB is started as a service -->
+<!-- Nothing is logged to the console -->
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+    <appender name="file" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="/var/log/voltdb/volt.log"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d   %-5p [%t] %c: %m%n"/>
+        </layout>
+    </appender>
+
+    <root>
+        <priority value="info" />
+        <appender-ref ref="file" />
+    </root>
+</log4j:configuration>
